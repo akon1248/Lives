@@ -16,9 +16,9 @@ import java.util.Optional;
 @UtilityClass
 public class LivesAPI {
 
-	private static final String OBJECTIVE_NAME = "lives_objective";
+	private final String OBJECTIVE_NAME = "lives_objective";
 	@Getter(value = AccessLevel.PRIVATE, lazy = true)
-	private static final Objective livesObjective = initObjective();
+	private final Objective livesObjective = initObjective();
 
 	public int getLives(Player player) {
 		Score score = getLivesObjective().getScore(player.getName());
