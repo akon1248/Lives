@@ -62,14 +62,14 @@ public class LivesMain extends JavaPlugin {
 			pluginManager.enablePlugin(protocolLib);
 		} catch (IOException | InvalidPluginException | ReflectiveOperationException ex) {
 			this.getLogger().severe("ProtocolLibの" + (ex instanceof IOException ? "ダウンロード" : "読み込み") + "に失敗したためプラグインを無効化します");
-			disable = true;
+			this.disable = true;
 			ex.printStackTrace();
 		}
 	}
 
 	@Override
 	public void onEnable() {
-		if (disable) {
+		if (this.disable) {
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
