@@ -21,7 +21,7 @@ public class SetLivesCommand {
 
 	private final SimpleCommandExceptionType REQUIRES_PLAYER = new SimpleCommandExceptionType(new ComponentMessageWrapper(new TranslatableComponent("permissions.requires.player")));
 
-	public static void register(LivesMain plugin) {
+	public void register(LivesMain plugin) {
 		CommandRegistry.register(LiteralArgumentBuilder.<CommandSender>literal("setlives")
 			.then(RequiredArgumentBuilder.<CommandSender, Integer>argument("lives", IntegerArgumentType.integer(0))
 				.then(RequiredArgumentBuilder.<CommandSender, Object>argument("player", EntityArgumentWrapper.players())
@@ -36,7 +36,7 @@ public class SetLivesCommand {
 			), plugin, "lives.command.setlives", "プレイヤーの残機を設定します");
 	}
 
-	private static int setLives(CommandContext<CommandSender> sender, Collection<Player> players, int lives) {
+	private int setLives(CommandContext<CommandSender> sender, Collection<Player> players, int lives) {
 		players.forEach(player -> {
 			LivesAPI.setLives(player, lives);
 			sender.getSource().sendMessage(player.getName() + "の残機を" + lives + "に設定しました");
