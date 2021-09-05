@@ -186,6 +186,26 @@ public class CommandRegistry {
 			super(plugin, PacketType.Play.Server.COMMANDS, PacketType.Play.Client.TAB_COMPLETE);
 		}
 
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onPacketSending(PacketEvent e) {
+			HashMap<CommandNode<?>, CommandNode<?>> map = Maps.newHashMap();
+			RootCommandNode<?> rootNode = new RootCommandNode<>();
+			RootCommandNode<Object> commandSourceNode = new RootCommandNode<>();
+			Object resourceCommands = RESOURCES_COMMANDS.get(RESOURCES.get(NMS_SERVER));
+			Stream.concat(
+				((CommandDispatcher<Object>)GET_DISPATCHER.invoke(resourceCommands)).getRoot().getChildren().stream()
+					.filter(node -> NMS_DISPATCHER.getRoot().getChild(node.getName()) == null),
+				Stream.of(NMS_DISPATCHER, (CommandDispatcher<Object>)GET_DISPATCHER.invoke(VANILLA_COMMANDS.get(NMS_SERVER)))
+					.map(CommandDispatcher::getRoot)
+					.map(CommandNode::getChildren)
+					.flatMap(Collection::stream)
+			).forEach(commandSourceNode::addChild);
+			map.put(commandSourceNode, rootNode);
+			FILL_USABLE_COMMANDS.invoke(resourceCommands, commandSourceNode, rootNode, CommandSenderConverter.toNMS(e.getPlayer()), map);
+			e.getPacket().getSpecificModifier(RootCommandNode.class).write(0, rootNode);
+		}
+
 		@Override
 		public void onPacketReceiving(PacketEvent e) {
 			StringReader command = new StringReader(e.getPacket().getStrings().read(0));
@@ -212,26 +232,6 @@ public class CommandRegistry {
 				return;
 			}
 			Bukkit.getScheduler().runTask(this.getPlugin(), runnable);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void onPacketSending(PacketEvent e) {
-			HashMap<CommandNode<?>, CommandNode<?>> map = Maps.newHashMap();
-			RootCommandNode<?> rootNode = new RootCommandNode<>();
-			RootCommandNode<Object> commandSourceNode = new RootCommandNode<>();
-			Object resourceCommands = RESOURCES_COMMANDS.get(RESOURCES.get(NMS_SERVER));
-			Stream.concat(
-				((CommandDispatcher<Object>)GET_DISPATCHER.invoke(resourceCommands)).getRoot().getChildren().stream()
-					.filter(node -> NMS_DISPATCHER.getRoot().getChild(node.getName()) == null),
-				Stream.of(NMS_DISPATCHER, (CommandDispatcher<Object>)GET_DISPATCHER.invoke(VANILLA_COMMANDS.get(NMS_SERVER)))
-					.map(CommandDispatcher::getRoot)
-					.map(CommandNode::getChildren)
-					.flatMap(Collection::stream)
-			).forEach(commandSourceNode::addChild);
-			map.put(commandSourceNode, rootNode);
-			FILL_USABLE_COMMANDS.invoke(resourceCommands, commandSourceNode, rootNode, CommandSenderConverter.toNMS(e.getPlayer()), map);
-			e.getPacket().getSpecificModifier(RootCommandNode.class).write(0, rootNode);
 		}
 
 	}
