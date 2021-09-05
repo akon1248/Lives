@@ -84,17 +84,17 @@ public class CommandSenderConverter {
 		RedirectModifier<R> modifier = node.getRedirectModifier() == null ? null : context -> node.getRedirectModifier().apply(rContextToTContext.apply(context)).stream()
 			.map(tToR)
 			.collect(Collectors.toList());
-		boolean forks = node.isFork();
+		boolean fork = node.isFork();
 		Command<R> command = node.getCommand() == null ? null : context -> node.getCommand().run(rContextToTContext.apply(context));
 		CommandNode<R> converted;
 		if (node instanceof ArgumentCommandNode<T, ?> argNode) {
 			String name = argNode.getName();
 			ArgumentType<?> type = argNode.getType();
 			SuggestionProvider<R> customSuggestions = argNode.getCustomSuggestions() == null ? null : (context, builder) -> argNode.getCustomSuggestions().getSuggestions(rContextToTContext.apply(context), builder);
-			converted = new ArgumentCommandNode<>(name, type, command, requirement, redirect, modifier, forks, customSuggestions);
+			converted = new ArgumentCommandNode<>(name, type, command, requirement, redirect, modifier, fork, customSuggestions);
 		} else if (node instanceof LiteralCommandNode<T> literalNode) {
 			String literal = literalNode.getLiteral();
-			converted = new LiteralCommandNode<>(literal, command, requirement, redirect, modifier, forks);
+			converted = new LiteralCommandNode<>(literal, command, requirement, redirect, modifier, fork);
 		} else {
 			converted = new RootCommandNode<>();
 		}
